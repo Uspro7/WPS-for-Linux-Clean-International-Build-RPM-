@@ -1,88 +1,108 @@
-# WPS Office for Linux Repack
+# WPS for Linux Clean International Build (RPM)
 
-Repack WPS Office for Linux to include `zh_CN` localization and/or prefixing commands.
+基于 WPS Office 官方 Linux 国际版 RPM 的中文精简重打包项目，面向需要本地文字、表格和演示功能，但不需要独立 PDF 程序、云端入口及更新器的用户。
 
-## PROPRIETARY WARNING
+保留国际版程序核心，补充简体中文资源与符号字体，提供可由系统包管理器安装、升级和卸载的 RPM。
 
-WPS Office is a proprietary software. Use at your own risk.
+> 本项目不是 WPS 官方发行版，也不是免安装便携版。“精简”指对包内容进行静态清理，不代表已经完成运行时网络审计，不能保证完全不联网或无遥测。
 
-## Version
+## 功能与边界
 
-### `<numeric_ver>`
+| 项目 | 处理方式 |
+| --- | --- |
+| 文字、表格、演示 | 保留国际版核心程序 |
+| 简体中文 | 设置中文界面，并为语言包补充旧版 Qt 兼容索引，覆盖三个编辑器的主要工具栏 |
+| 符号字体 | 加入 Symbol、Wingdings、Wingdings 2、Wingdings 3、Webdings、MT Extra 六种实际字体 |
+| 独立 WPS PDF | 移除程序、启动命令和桌面入口 |
+| 文档导出 PDF | 保留相关共享库，不随独立 PDF 程序一起删除 |
+| 云端、推广、更新器 | 静态移除已知的相关进程、插件和入口 |
+| 桌面集成 | 保留普通文档 MIME 关联，统一使用系统标准 Office 分类 |
+| 输入法 | 包含 Wayland / XWayland 下的 Fcitx5 环境变量兼容处理 |
+| 命令冲突 | 使用 `wps`、`wpset`、`wpswpp`，不占用 `et` 和 `wpp` |
 
-Raw Chinese version. Cloud features enabled.
+### 编辑器界面
 
-Available localizations:
+下图依次为文字、表格和演示的实际工具栏，不只是启动页的中文界面。
 
-* `en_US`
-* `mn_CN`
-* `ru_RU`
-* `ug_CN`
-* `zh_CN`
+![文字、表格和演示的中文工具栏](docs/images/ribbons-verified.png)
 
-### `<numeric_ver>.XA`
+## 当前发行版本
 
-Raw International version. Cloud features disabled.
+- RPM：`wps-office-11.1.0.11723.XA-4.linuxwps.fc44.x86_64.rpm`
+- 国际版底包：`11.1.0.11723.XA`
+- 中文资源来源：`12.1.2.28080.AK.preread.sw.Personal`
+- 已验证环境：Fedora 44、KDE Plasma、x86_64；Wayland 会话下通过 XWayland 运行。
+- 其他 RPM 发行版尚未验证；不支持 ARM，也不提供 DEB、Flatpak 或 AppImage 发行包。
 
-Available localizations:
+底包与中文资源版本不同。项目通过翻译兼容处理解决已验证的工具栏问题，但不承诺所有对话框、插件和未来版本都能完整汉化。
 
-* `en_US`
-* `mn_CN`
-* `ru_RU`
-* `ug_CN`
+## 下载与安装
 
-### `+mui`
+从 [GitHub Releases](https://github.com/Uspro7/WPS-for-Linux-Clean-International-Build-RPM-/releases) 下载同一版本的 RPM 和 `SHA256SUMS`，放在同一目录。
 
-> It brings back `zh_CN` localization to the International version, with cloud features kept disabled.
+先保存文档并退出所有 WPS 窗口，然后运行：
 
-Localizations (`/opt/kingsoft/wps-office/office6/mui`) and default templates (`/opt/kingsoft/wps-office/templates`) replaced by those from Chinese version. It is necessary to replace them instead of just copying `zh_CN` localization to activate `zh_CN` user interface.
+```bash
+sha256sum -c SHA256SUMS
+sudo dnf install ./wps-office-11.1.0.11723.XA-4.linuxwps.fc44.x86_64.rpm
+```
 
-Localizations from two versions are nearly the same, except for:
+校验通过后再安装。若提示同名文件已由其他 WPS 软件包拥有，请先阅读 [故障排查](docs/TROUBLESHOOTING.md)，不要使用 `--force` 覆盖。
 
-1. International version comes without `zh_CN` localization
-2. International version comes without these components in its `en_US` localization: help files, EULA, and Privacy Policy. In Chinese version these `en_US` components are available, but untranslated (still in Chinese).
+本包使用 `wps-office` 包名，并安装到 `/opt/kingsoft/wps-office`，不适合与另一个使用同一路径的 WPS 包并存。RPM 未签名；SHA-256 用于检查下载完整性，不等同于发布者签名。
 
-Default templates from two version are completely the same, except for their names:
+### 启动
 
-1. Default templates from International version are named in English
-2. Default templates from Chinese version are named in Chinese
+可以从系统“办公”菜单启动，也可以使用：
 
-### `+prefixed`
+```bash
+wps        # WPS 文字
+wpset      # WPS 表格
+wpswpp     # WPS 演示
+```
 
-All commands are prefixed with `wps` to prevent conflicts (e.g. https://github.com/MisterTea/EternalTerminal/issues/316).
+启动器会将当前用户 WPS 配置中的界面语言设为 `zh_CN`，不修改系统全局语言。首次修改已有配置时会保存 `Office.conf.linuxwps-backup`。
 
-| Original | Prefixed |
-|----------|----------|
-| `et`     | `wpset`  |
-| `wpp`    | `wpswpp` |
-| `wps`    | `wps`    |
-| `wpspdf` | `wpspdf` |
+### 卸载
 
-### `+fcitx5xwayland`
+```bash
+sudo dnf remove wps-office
+```
 
-Fcitx 5 on XWayland workaround applied. If you have set your environment according to [Using Fcitx 5 on Wayland](https://fcitx-im.org/wiki/Using_Fcitx_5_on_Wayland) and Fcitx 5 doesn't work in WPS Office, try this.
+卸载不主动清除用户目录中的设置和文档。
 
-## Obsolete version suffixes
+## 自行构建
 
-<details>
+在 Fedora x86_64 环境中：
 
-> The corresponding workarounds of these version suffixes are no longer needed in new versions.
+```bash
+sudo dnf install git rpm-build rpm cpio wget curl unzip python3 fontconfig
 
-### `+kdedark`
+git clone https://github.com/Uspro7/WPS-for-Linux-Clean-International-Build-RPM-.git
+cd WPS-for-Linux-Clean-International-Build-RPM-
+./build-rpm.sh
+```
 
-KDE dark theme workaround applied. If you find some texts are not readable and your KDE theme is dark, try this.
+构建本身不需要 root。首次构建会下载官方 RPM 和字体归档，产物位于 `build/dist/`。请预留数 GB 磁盘空间；具体来源、缓存规则和验证方法见 [构建文档](docs/BUILD.md)。
 
-### `+bold`
+项目不重新编译 WPS 的闭源代码，也不修改其程序二进制。构建输入版本、系统 RPM 宏和缓存会影响产物，当前不保证字节级可复现构建。
 
-Bold font workaround applied. If you find some bold texts messed up, try this.
+## 文档
 
-</details>
+- [构建与测试](docs/BUILD.md)
+- [项目结构与定制原理](docs/ARCHITECTURE.md)
+- [安装及故障排查](docs/TROUBLESHOOTING.md)
+- [发行流程](docs/RELEASING.md)
+- [更新记录](CHANGELOG.md)
+- [本次发行说明](docs/releases/v11.1.0.11723.XA-4.md)
 
-## Official website
+`build-rpm.sh` 是本项目的 RPM 构建入口。保留的 `repack.sh` 和 `.source.lock` 属于上游历史 DEB 构建流程，不用于本发行版；旧工作流已归档为示例，不会自动运行。
 
-Chinese: [linux.wps.cn](https://linux.wps.cn)  
-International: [www.wps.com/office/linux/](https://www.wps.com/office/linux/)
+## 来源与权利说明
 
-## Fonts
+- 官方国际版：[WPS Office for Linux](https://www.wps.com/office/linux/)
+- 官方中文资源：[WPS Linux](https://linux.wps.cn)
+- 上游重打包项目：[Rongronggg9/wps-office-repack](https://github.com/Rongronggg9/wps-office-repack)
+- 符号字体来源：[Rongronggg9/wps-fonts](https://github.com/Rongronggg9/wps-fonts)
 
-WPS Office for Linux used to be distributed with a set of fonts: [wps-fonts](https://github.com/Rongronggg9/wps-fonts)
+本项目保留上游提交历史，并在其基础上提供原生 RPM 构建、中文兼容和精简处理。WPS 程序、语言资源及专有字体的权利和许可不因本仓库公开而改变，请遵循各自权利人的使用及分发条款。本仓库不将这些资源声明为开源软件。
