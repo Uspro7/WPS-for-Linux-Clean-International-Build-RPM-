@@ -1,5 +1,14 @@
 # 更新记录
 
+## 11.1.0.11723.XA-5 — 2026-11-05
+
+### 修复
+
+- **彻底修复粗体/伪粗体（Fakebold）显示异常**：
+  - 针对系统高版本 FreeType（>= 2.13.0，Fedora 40+ 默认搭载 2.13/2.14）重构了 `FT_GlyphSlot_Embolden` 权重算法导致 WPS 中文字体加粗变成一团黑、模糊失真的问题；
+  - 随包内置兼容版 FreeType 2.12.1（来自 Debian 12 维护版 `libfreetype.so.6.18.3`），安装于 `/opt/kingsoft/wps-office/office6/` 自包含目录；
+  - 启动脚本自动设置 `LD_PRELOAD` 优先加载内置兼容库，确保 WPS 文字、表格、演示及核心库（`libkso.so`、`libqxcb.so`）正常渲染粗体，完全不影响系统全局 FreeType 及其安全更新。
+
 ## 11.1.0.11723.XA-4 — 2026-10-12
 
 ### 功能

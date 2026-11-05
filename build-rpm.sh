@@ -148,6 +148,43 @@ install_symbol_fonts() {
     success '六种公式符号字体已加入 RPM。'
 }
 
+# 集成兼容版 FreeType (2.12.1)，彻底解决 FreeType >= 2.13.0 导致的 WPS 中文字体伪粗体加粗一团黑/异常
+install_compatible_freetype() {
+    local deb_name='libfreetype6_2.12.1+dfsg-5+deb12u4_amd64.deb'
+    local deb_path="${DOWNLOAD_DIR}/${deb_name}"
+    local expected_sha256='8043e479f73f29992d652e3f9dfe8b17f9780c7ea6330afe379ec5f9f188ac44'
+    local download_url="https://mirrors.ustc.edu.cn/debian/pool/main/f/freetype/${deb_name}"
+    local destination="${REPACK_DIR}/opt/kingsoft/wps-office/office6"
+
+    info "检查并安装兼容版 FreeType 库以修复粗体渲染异常..."
+    if [ ! -f "$deb_path" ]; then
+        download_file "$download_url" "$deb_path"
+    fi
+    printf '%s  %s\n' "$expected_sha256" "$deb_path" | sha256sum -c - || error "FreeType 兼容包校验失败: $deb_path"
+
+    local temp_dir
+    temp_dir=$(mktemp -d "${EXTRACT_DIR}/freetype.XXXXXX")
+    (
+        cd "$temp_dir"
+        ar x "$deb_path"
+        tar -xf data.tar.xz
+    )
+    local so_file
+    so_file=$(find "$temp_dir" -name 'libfreetype.so.6.*' | head -n 1)
+    [ -n "$so_file" ] && [ -f "$so_file" ] || error "未在 FreeType deb 包中找到共享库！"
+
+    cp -a "$so_file" "${destination}/"
+    local so_basename
+    so_basename="$(basename "$so_file")"
+    (
+        cd "$destination"
+        ln -sf "$so_basename" libfreetype.so.6
+    )
+    chmod 755 "${destination}/${so_basename}"
+    rm -rf "$temp_dir"
+    success "兼容版 FreeType (2.12.1) 已注入 WPS office6 目录，粗体渲染修复就绪。"
+}
+
 # 5. 核心定制与净化
 repack_and_sanitize() {
     local base_extracted="${EXTRACT_DIR}/int_base"
@@ -177,8 +214,9 @@ repack_and_sanitize() {
     [ -d "$int_mui/zh_CN" ] || error '中文语言资源缺失，终止构建。'
     python3 "${SCRIPT_DIR}/src/wps_qm_compat.py" "${REPACK_DIR}/opt/kingsoft/wps-office/office6"
     install_symbol_fonts
+    install_compatible_freetype
     cp "${SCRIPT_DIR}/src/wps-locale.sh" "${REPACK_DIR}/opt/kingsoft/wps-office/office6/wps-locale.sh"
-    success "简体中文资源与启动语言设置已准备。"
+    success "简体中文资源、字体与启动语言设置已准备。"
 
     # [2] 删除云端、更新器、推广入口和官方安装钩子；不碰核心编辑/渲染组件。
     info "[2/5] 正在删除云端、更新、推广和官方安装钩子..."
@@ -283,7 +321,7 @@ build_rpm() {
     mkdir -p "${RPM_TOPDIR}"/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
     local pkg_version="${INT_VER}"
-    local pkg_release="4.linuxwps%{?dist}"
+    local pkg_release="5.linuxwps%{?dist}"
     local spec_file="${RPM_TOPDIR}/SPECS/wps-office.spec"
 
     mkdir -p "${RPM_TOPDIR}/SOURCES/root"
@@ -314,6 +352,7 @@ Requires:       fontconfig, freetype, libX11, libXext, libXrender, glibc
 WPS Office for Linux, repackaged from the official International RPM.
 - Known cloud, updater, promotion, and installer-hook components removed.
 - zh_CN localization and templates injected; Chinese UI explicitly selected.
+- Bundled compatible FreeType (2.12.1) to fix font fakebold distortion.
 - Six formula symbol fonts bundled; standalone WPS PDF application removed.
 - Desktop entries cleaned up and placed under the standard Office category.
 - Wayland Fcitx5 input method fixes included.
@@ -348,7 +387,10 @@ cp -a %{_sourcedir}/root/* %{buildroot}/
 /usr/share/templates/.source
 
 %changelog
-* Mon Oct 12 2026 LinuxWPS <local@localhost> - ${pkg_version}-${pkg_release}
+* Thu Nov 05 2026 LinuxWPS <local@localhost> - ${pkg_version}-${pkg_release}
+- Fix Chinese font fakebold distortion by bundling compatible FreeType 2.12.1
+
+* Mon Oct 12 2026 LinuxWPS <local@localhost> - ${pkg_version}-4.linuxwps%{?dist}
 - Fix Chinese UI selection and missing symbol fonts; remove standalone PDF app
 EOF
 

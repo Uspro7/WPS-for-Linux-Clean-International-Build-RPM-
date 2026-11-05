@@ -36,6 +36,7 @@
 | 文字、表格、演示 | 保留国际版核心程序 |
 | 简体中文 | 设置中文界面，并为语言包补充旧版 Qt 兼容索引，覆盖三个编辑器的主要工具栏 |
 | 符号字体 | 加入 Symbol、Wingdings、Wingdings 2、Wingdings 3、Webdings、MT Extra 六种实际字体 |
+| 粗体渲染 | 内置兼容版 FreeType (2.12.1)，彻底解决 FreeType >= 2.13.0 导致中文字体伪粗体加粗变一团黑的通病 |
 | 独立 WPS PDF | 移除程序、启动命令和桌面入口 |
 | 文档导出 PDF | 保留相关共享库，不随独立 PDF 程序一起删除 |
 | 云端、推广、更新器 | 静态移除已知的相关进程、插件和入口 |
@@ -67,7 +68,7 @@
 
 ```bash
 sha256sum -c SHA256SUMS
-sudo dnf install ./wps-office-11.1.0.11723.XA-4.linuxwps.fc44.x86_64.rpm
+sudo dnf install ./wps-office-11.1.0.11723.XA-5.linuxwps.fc44.x86_64.rpm
 ```
 
 校验通过后再安装。若提示同名文件已由其他 WPS 软件包拥有，请先阅读 [故障排查](docs/TROUBLESHOOTING.md)，不要使用 `--force` 覆盖。
@@ -117,7 +118,7 @@ cd WPS-for-Linux-Clean-International-Build-RPM-
 - [安装及故障排查](docs/TROUBLESHOOTING.md)
 - [发行流程](docs/RELEASING.md)
 - [更新记录](CHANGELOG.md)
-- [本次发行说明](docs/releases/v11.1.0.11723.XA-4.md)
+- [本次发行说明](docs/releases/v11.1.0.11723.XA-5.md)
 
 `build-rpm.sh` 是本项目的 RPM 构建入口。保留的 `repack.sh` 和 `.source.lock` 属于上游历史 DEB 构建流程，不用于本发行版；旧工作流已归档为示例，不会自动运行。
 

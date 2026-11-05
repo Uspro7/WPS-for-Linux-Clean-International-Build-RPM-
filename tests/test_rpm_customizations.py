@@ -118,6 +118,14 @@ class PayloadTests(unittest.TestCase):
         for component in ['wps', 'et', 'wpp', 'kso']:
             self.assertTrue((STAGE / f'opt/kingsoft/wps-office/office6/mui/zh_CN/{component}.qm').is_file())
 
+    def test_compatible_freetype_bundled_and_preloaded(self):
+        so_link = STAGE / 'opt/kingsoft/wps-office/office6/libfreetype.so.6'
+        self.assertTrue(so_link.is_symlink(), 'libfreetype.so.6 symlink should exist')
+        so_real = so_link.resolve()
+        self.assertTrue(so_real.is_file(), 'Target libfreetype.so.6.* should exist')
+        locale_sh = (STAGE / 'opt/kingsoft/wps-office/office6/wps-locale.sh').read_text()
+        self.assertIn('LD_PRELOAD="/opt/kingsoft/wps-office/office6/libfreetype.so.6', locale_sh)
+
 
 if __name__ == '__main__':
     unittest.main()

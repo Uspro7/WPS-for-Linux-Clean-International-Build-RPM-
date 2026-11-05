@@ -80,6 +80,19 @@ sudo dnf remove wps-office
 
 卸载不会主动删除用户文档和用户配置。不要为了卸载软件而删除整个 `~/Documents` 或整个 `~/.config/Kingsoft`。
 
+## 8. 中文字体加粗变成一团黑（伪粗体渲染异常）
+
+### 原因
+Fedora 40/41/42/43/44 等现代 Linux 发行版升级到较新版本的 FreeType（`>= 2.13.0`），上游在 `ftsynth.c` 中修改了 `FT_GlyphSlot_Embolden` 的外扩权重算法。由于 WPS 对没有独立粗体字重（Bold）的中文字体（如宋体、楷体、仿宋等）依赖此函数生成“伪粗体（Fakebold）”，算法冲突会导致加粗后笔画极度堆叠成一团黑墨块或模糊变形。
+
+### 解决办法
+从 `11.1.0.11723.XA-5` 起，本项目已在 RPM 内置兼容的 FreeType 2.12.1 动态库（位于 `/opt/kingsoft/wps-office/office6/libfreetype.so.6`），并通过启动脚本自动优先加载，完全无需修改系统全局库。
+
+请升级至最新版 RPM：
+```bash
+sudo dnf upgrade ./wps-office-11.1.0.11723.XA-5.linuxwps.fc44.x86_64.rpm
+```
+
 ## 反馈问题
 
 请提供发行包文件名、发行版和桌面环境、会话类型、复现步骤及必要截图。请先去除文档内容、账号、令牌等个人信息。

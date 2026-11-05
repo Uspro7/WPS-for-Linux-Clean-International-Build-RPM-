@@ -7,9 +7,9 @@
 当前版本对应关系：
 
 ```text
-Git tag:     v11.1.0.11723.XA-4
+Git tag:     v11.1.0.11723.XA-5
 RPM Version: 11.1.0.11723.XA
-RPM Release: 4.linuxwps.fc44
+RPM Release: 5.linuxwps.fc44
 RPM Arch:    x86_64
 ```
 
@@ -34,7 +34,7 @@ rpm -Uvh --test --replacepkgs --notriggers build/dist/*.rpm
 
 ```bash
 cd build/dist
-sha256sum wps-office-11.1.0.11723.XA-4.linuxwps.fc44.x86_64.rpm > SHA256SUMS
+sha256sum wps-office-11.1.0.11723.XA-5.linuxwps.fc44.x86_64.rpm > SHA256SUMS
 sha256sum -c SHA256SUMS
 ```
 
@@ -45,16 +45,16 @@ sha256sum -c SHA256SUMS
 推送对应提交后，创建指向该提交的 tag 和 GitHub Release。以安装了 GitHub CLI 且已登录为例，在仓库根目录执行：
 
 ```bash
-git tag -a v11.1.0.11723.XA-4 -m 'WPS Linux international clean RPM release 4'
+git tag -a v11.1.0.11723.XA-5 -m 'WPS Linux international clean RPM release 5'
 git push origin main
-git push origin v11.1.0.11723.XA-4
+git push origin v11.1.0.11723.XA-5
 
-gh release create v11.1.0.11723.XA-4 \
+gh release create v11.1.0.11723.XA-5 \
   --repo Uspro7/WPS-for-Linux-Clean-International-Build-RPM- \
   --verify-tag \
-  --title 'WPS Office 11.1.0.11723.XA · 精简中文版 RPM r4' \
-  --notes-file docs/releases/v11.1.0.11723.XA-4.md \
-  build/dist/wps-office-11.1.0.11723.XA-4.linuxwps.fc44.x86_64.rpm \
+  --title 'WPS Office 11.1.0.11723.XA · 精简中文版 RPM r5' \
+  --notes-file docs/releases/v11.1.0.11723.XA-5.md \
+  build/dist/wps-office-11.1.0.11723.XA-5.linuxwps.fc44.x86_64.rpm \
   build/dist/SHA256SUMS
 ```
 

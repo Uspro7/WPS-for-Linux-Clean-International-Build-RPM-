@@ -47,3 +47,8 @@ linuxwps_set_language() (
 linuxwps_set_language || printf '%s\n' 'WPS: could not set Chinese interface language.' >&2
 unset -f linuxwps_set_language
 export LANGUAGE=zh_CN:zh
+
+# 修复系统 FreeType >= 2.13.0 伪粗体 (Fakebold) 渲染过粗或一团黑问题
+if [ -f '/opt/kingsoft/wps-office/office6/libfreetype.so.6' ]; then
+    export LD_PRELOAD="/opt/kingsoft/wps-office/office6/libfreetype.so.6${LD_PRELOAD:+:$LD_PRELOAD}"
+fi
